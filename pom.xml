@@ -95,7 +95,7 @@
                     <httpConnector>
                         <!-- For WebServlet.sendRedirect() work properly in GitHub Codespaces, 
                              it must be 80. If testing locally, it can be any port -->
-                        <port>8080</port>
+                        <port>80</port>
                     </httpConnector>
                 </configuration>
                 <dependencies>

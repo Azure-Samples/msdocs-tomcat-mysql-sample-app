@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.microsoft.azure.appservice.examples.tomcatmysql.models.Student;
+import com.microsoft.azure.appservice.examples.tomcatmysql.models.Task;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -32,9 +32,9 @@ public class DeleteServlet extends HttpServlet {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            Student student = em.find(Student.class, id);
-            if(student != null) {
-                em.remove(student);
+            Task task = em.find(Task.class, id);
+            if(task != null) {
+                em.remove(task);
             }
             transaction.commit();
         } catch (Exception e) {

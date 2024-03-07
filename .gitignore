@@ -1,0 +1,72 @@
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Azure Developer CLI
+.azure
+
+# Visual Studio Code
+.vscode
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
+!/.mvn/wrapper/maven-wrapper.jar
+
+.gradle/
+build/
+.gradletasknamecache
+
+*.log
+graph-output.dot
+
+.settings
+.vscode
+.project
+.classpath
+*.iml
+.idea
+.factorypath
+
+settings.xml
+quarkus.log
+
+bin/
+.DS_Store
+ObjectStore
+
+lsp/
+
+*.swp
+*.swo

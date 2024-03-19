@@ -1,20 +1,36 @@
 param name string
 param location string
 param resourceToken string
-param tags object
+param principalId string = ''
 @secure()
 param databasePassword string
 
 var appName = '${name}-${resourceToken}'
 
-// var databaseSubnetName = 'database-subnet'
-// var webappSubnetName = 'webapp-subnet'
-
-// Added for Azure Redis Cache
-// var cacheServerName = '${appName}-redisCache'
-// var cacheSubnetName = 'cache-subnet'
-// var cachePrivateEndpointName = 'cache-privateEndpoint'
-// var cachePvtEndpointDnsGroupName = 'cacheDnsGroup'
+// Key Vault for saving randomly generated password
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: '${take(replace(appName, '-', ''), 17)}-vault'
+  location: location
+  properties: {
+    tenantId: subscription().tenantId
+    sku: { family: 'A', name: 'standard' }
+    accessPolicies: [
+      {
+        objectId: principalId
+        permissions: { secrets: [ 'get', 'list' ] }
+        tenantId: subscription().tenantId
+      }
+    ]
+  }
+}
+resource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: 'databasePassword'
+  parent: keyVault
+  properties: {
+    contentType: 'string'
+    value: databasePassword
+  }
+}
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
   location: location
@@ -117,7 +133,6 @@ resource privateDnsZoneLinkCache 'Microsoft.Network/privateDnsZones/virtualNetwo
 resource dbserver 'Microsoft.DBforMySQL/flexibleServers@2023-06-30' = {
   location: location
   name: '${appName}-mysql-server'
-  tags: null
   properties: {
     version: '8.0.21'
     administratorLogin: 'mysqladmin'
@@ -186,7 +201,6 @@ resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = 
 resource redisCache 'Microsoft.Cache/Redis@2023-08-01' = {
   name: '${appName}-cache'
   location: location
-  tags: {}
   properties: {
     sku: {
       name: 'Standard'
@@ -204,7 +218,6 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: '${appName}-plan'
   location: location
   kind: 'linux'
-  tags: null
   properties: {
     reserved: true
   }
@@ -216,11 +229,10 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
 resource web 'Microsoft.Web/sites@2022-09-01' = {
   name: appName
   location: location
-  tags: union(tags, { 'azd-service-name': 'web' })
+  tags: {'azd-service-name': 'web'}
   properties: {
     siteConfig: {
       linuxFxVersion: 'TOMCAT|10.0-java17'
-      appSettings: []
       vnetRouteAllEnabled: true
       ftpsState: 'Disabled'
     }
@@ -249,12 +261,6 @@ resource web 'Microsoft.Web/sites@2022-09-01' = {
           retentionInMb: 35
         }
       }
-    }
-  }
-
-  resource appSettings 'config' = {
-    name: 'appsettings'
-    properties: {
     }
   }
 
@@ -310,7 +316,6 @@ resource cacheConnector 'Microsoft.ServiceLinker/linkers@2022-05-01' = {
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
   name: '${appName}-workspace'
   location: location
-  tags: tags
   properties: any({
     retentionInDays: 30
     features: {
@@ -364,13 +369,8 @@ resource webdiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
 
-resource webAppSettings 'Microsoft.Web/sites/config@2022-03-01' existing = {
-  name: web::appSettings.name
-  parent: web
-}
-
-var webAppSettingsKeys = map(items(webAppSettings.list().properties), setting => setting.key)
-output WEB_APP_SETTINGS array = webAppSettingsKeys
+output CONNECTION_SETTINGS array = [dbConnector.listConfigurations().configurations[0].name, cacheConnector.listConfigurations().configurations[0].name]
 output WEB_APP_LOG_STREAM string = format('https://portal.azure.com/#@/resource{0}/logStream', web.id)
 output WEB_APP_SSH string = format('https://{0}.scm.azurewebsites.net/webssh/host', web.name)
 output WEB_APP_CONFIG string = format('https://portal.azure.com/#@/resource{0}/configuration', web.id)
+output AZURE_KEY_VAULT_NAME string = keyVault.name

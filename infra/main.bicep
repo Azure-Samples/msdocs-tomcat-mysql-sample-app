@@ -10,7 +10,7 @@ param name string
 param location string
 
 @secure()
-@description('PostGreSQL Server administrator password')
+@description('MySQL server administrator password')
 param databasePassword string
 
 param principalId string = ''

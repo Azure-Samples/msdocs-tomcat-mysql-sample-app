@@ -232,7 +232,7 @@ resource web 'Microsoft.Web/sites@2022-09-01' = {
   tags: {'azd-service-name': 'web'}
   properties: {
     siteConfig: {
-      linuxFxVersion: 'TOMCAT|10.0-java17'
+      linuxFxVersion: 'TOMCAT|10.1-java17'
       vnetRouteAllEnabled: true
       ftpsState: 'Disabled'
     }

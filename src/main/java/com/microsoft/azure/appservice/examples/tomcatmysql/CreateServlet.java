@@ -44,11 +44,13 @@ public class CreateServlet extends HttpServlet  {
             em.close();
         }
 
-        String path = req.getContextPath();
-        if(path != "") {
-            resp.sendRedirect(path);
-        } else {
-            resp.sendRedirect("/");
-        }
+        // Redirect back to the task list using a relative URL so the browser resolves it
+        // against its own address. Redirecting to an absolute path like "/" makes the
+        // servlet container build an absolute URL (e.g. http://localhost/) from the request
+        // Host header, which breaks behind a proxy such as GitHub Codespaces port forwarding.
+        // Pass the URL through encodeRedirectURL so URL-rewriting session tracking still works
+        // when cookies are disabled (encodeRedirectURL keeps the URL relative).
+        resp.setStatus(HttpServletResponse.SC_SEE_OTHER);
+        resp.setHeader("Location", resp.encodeRedirectURL("."));
     }
 }

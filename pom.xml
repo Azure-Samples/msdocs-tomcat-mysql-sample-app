@@ -86,9 +86,9 @@
                 <version>3.4.0</version>
             </plugin>
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>11.0.20</version>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-maven-plugin</artifactId>
+                <version>12.1.11</version>
                 <configuration>
                     <webApp>
                         <contextPath>/</contextPath>

@@ -59,7 +59,7 @@
                             <tbody>
                                 <c:forEach items="${taskRecords}" var="record">  
                                     <tr>
-                                        <td class="table-text"><div>${record.getName()}</div></td>
+                                        <td class="table-text"><div><c:out value="${record.getName()}"/></div></td>
                                         <!-- Task Delete Button -->
                                         <td>
                                             <form action="delete" method="post">
